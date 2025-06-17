@@ -1,5 +1,6 @@
-# Mantine + Vite + Vanilla extract template
+# Mantine Combobox
 
-Get started with the template by clicking `Use this template` button on the top of the page.
+Test des composants suivants pour une application aux autres projets d'ITN :
 
-[Documentation](https://mantine.dev/styles/vanilla-extract/)
+- Autocomplete (static & api)
+- MultiSelect (static & api)
