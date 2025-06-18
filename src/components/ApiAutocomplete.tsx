@@ -1,34 +1,46 @@
+import { ApiComboboxData, ComboboxProps } from "../core/Combobox";
+import { Combobox, useCombobox } from "@mantine/core";
+import ComboboxInput from "./parts/ComboboxInput";
 import { useState } from "react";
 import {
-  CloseButton,
-  Combobox,
-  Loader,
-  ScrollArea,
-  Text,
-  TextInput,
-  useCombobox,
-} from "@mantine/core";
+  ComboboxDropdown,
+  ComboboxCreateOption,
+} from "./parts/ComboboxDropdown";
+
+type ApiAutocomplete = ComboboxProps & {
+  url: string;
+  normalizer?: (item: unknown) => void;
+  createItemMethod?: (item: string) => void;
+};
 
 export default function ApiAutocomplete({
   label,
-  placeholder,
+  placeholder = label,
+  selectedOption,
+  error,
+  isRequired,
+  onChange,
   url,
-  canCreateNewOption,
+  createItemMethod,
   normalizer = (item: any) => {
     return item.name;
   },
-}: {
-  label?: string;
-  placeholder?: string;
-  url: string;
-  canCreateNewOption?: boolean;
-  normalizer?: (item: unknown) => void;
-}) {
+}: ApiAutocomplete) {
+  const [newItem, setNewItem] = useState("");
+
+  const [data, setData] = useState<ApiComboboxData>({
+    items: [],
+    loading: false,
+  });
+
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
     onDropdownOpen: async () => {
-      if (data.length === 0 && !loading) {
-        setLoading(true);
+      if (data.items.length === 0 && !data.loading) {
+        setData({
+          items: data.items,
+          loading: true,
+        });
 
         try {
           const response = await fetch(url).then((response) => response.json());
@@ -36,97 +48,73 @@ export default function ApiAutocomplete({
             return normalizer(response);
           });
 
-          setData(formatedResponse);
-          setLoading(false);
+          setData({
+            items: formatedResponse,
+            loading: false,
+          });
 
           combobox.resetSelectedOption();
         } catch (error) {
           console.log(error);
-          setData([]);
+          setData({
+            items: [],
+            loading: false,
+          });
         }
       }
     },
   });
 
-  const [data, setData] = useState<string[] | []>([]);
-  const [loading, setLoading] = useState(false);
-  const [value, setValue] = useState("");
+  const shouldFilterOptions = !data.items.some(
+    (item) => item === selectedOption
+  );
+
+  const filteredOptions = shouldFilterOptions
+    ? data.items.filter((item) =>
+        item.toLowerCase().includes(selectedOption.toLowerCase().trim())
+      )
+    : data.items;
 
   return (
     <Combobox
       store={combobox}
       withinPortal={false}
       onOptionSubmit={(optionValue) => {
-        if (optionValue === "$create") {
-          // call api création
-          // add method en props
-          console.log("Création d'un élément à la volée");
+        if (optionValue === "$create" && createItemMethod) {
+          createItemMethod(optionValue);
         } else {
-          setValue(optionValue);
+          onChange(optionValue);
         }
         combobox.closeDropdown();
       }}
     >
-      <Combobox.Target>
-        <TextInput
-          w='25rem'
-          label={label}
-          placeholder={placeholder}
-          value={value}
-          onChange={(event) => {
-            setValue(event.currentTarget.value);
-            combobox.resetSelectedOption();
-            combobox.openDropdown();
-          }}
-          onClick={() => combobox.openDropdown()}
-          onFocus={() => combobox.openDropdown()}
-          onBlur={() => combobox.closeDropdown()}
-          rightSection={
-            loading ? (
-              <Loader size={18} />
+      <ComboboxInput
+        label={label}
+        placeholder={placeholder}
+        selectedOption={selectedOption}
+        onChange={onChange}
+        store={combobox}
+        loading={data.loading}
+        error={error}
+        isRequired={isRequired}
+      />
+      <ComboboxDropdown hidden={data === null}>
+        {filteredOptions.length === 0 ? (
+          <>
+            {createItemMethod ? (
+              <ComboboxCreateOption value={selectedOption} />
             ) : (
-              value !== "" && (
-                <CloseButton
-                  size='sm'
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => setValue("")}
-                  aria-label='Clear value'
-                />
-              )
-            )
-          }
-        />
-      </Combobox.Target>
-      <Combobox.Dropdown hidden={data === null}>
-        <Combobox.Options>
-          <ScrollArea.Autosize type='scroll' mah={200}>
-            {data.length === 0 ? (
-              <>
-                {canCreateNewOption ? (
-                  <Combobox.Option value='$create'>
-                    Créer l'option :{" "}
-                    <Text
-                      span
-                      fz='inherit'
-                      style={{ textDecoration: "underline" }}
-                    >
-                      {value}
-                    </Text>
-                  </Combobox.Option>
-                ) : (
-                  <Combobox.Empty>Aucun résultat</Combobox.Empty>
-                )}
-              </>
-            ) : (
-              data.map((item) => (
-                <Combobox.Option value={item} key={item}>
-                  {item}
-                </Combobox.Option>
-              ))
+              <Combobox.Empty>Aucun résultat</Combobox.Empty>
             )}
-          </ScrollArea.Autosize>
-        </Combobox.Options>
-      </Combobox.Dropdown>
+          </>
+        ) : (
+          filteredOptions.map((item) => (
+            <Combobox.Option value={item} key={item}>
+              {item}
+            </Combobox.Option>
+          ))
+        )}
+      </ComboboxDropdown>
     </Combobox>
   );
 }

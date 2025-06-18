@@ -1,28 +1,25 @@
-import {
-  CloseButton,
-  Combobox,
-  ScrollArea,
-  TextInput,
-  useCombobox,
-} from "@mantine/core";
-import { useState } from "react";
+import { ComboboxDropdown } from "./parts/ComboboxDropdown";
+import { Combobox, useCombobox } from "@mantine/core";
+import ComboboxInput from "./parts/ComboboxInput";
+import { ComboboxProps } from "../core/Combobox";
+
+type StaticAutocompleteProps = ComboboxProps & { options: string[] };
 
 export default function StaticAutocomplete({
   label,
-  placeholder,
+  placeholder = label,
+  selectedOption,
+  error,
+  isRequired,
   options,
-}: {
-  label?: string;
-  placeholder?: string;
-  options: string[];
-}) {
+  onChange,
+}: StaticAutocompleteProps) {
   const combobox = useCombobox();
-  const [value, setValue] = useState("");
 
-  const shouldFilterOptions = !options.some((item) => item === value);
+  const shouldFilterOptions = !options.some((item) => item === selectedOption);
   const filteredOptions = shouldFilterOptions
     ? options.filter((item) =>
-        item.toLowerCase().includes(value.toLowerCase().trim())
+        item.toLowerCase().includes(selectedOption.toLowerCase().trim())
       )
     : options;
 
@@ -31,51 +28,30 @@ export default function StaticAutocomplete({
       store={combobox}
       withinPortal={false}
       onOptionSubmit={(optionValue) => {
-        setValue(optionValue);
+        onChange(optionValue);
         combobox.closeDropdown();
       }}
     >
-      <Combobox.Target>
-        <TextInput
-          w='25rem'
-          label={label}
-          placeholder={placeholder}
-          value={value}
-          onChange={(event) => {
-            setValue(event.currentTarget.value);
-            combobox.openDropdown();
-            combobox.updateSelectedOptionIndex();
-          }}
-          onClick={() => combobox.openDropdown()}
-          onFocus={() => combobox.openDropdown()}
-          onBlur={() => combobox.closeDropdown()}
-          rightSection={
-            value !== "" && (
-              <CloseButton
-                size='sm'
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => setValue("")}
-                aria-label='Clear value'
-              />
-            )
-          }
-        />
-      </Combobox.Target>
-      <Combobox.Dropdown>
-        <Combobox.Options>
-          <ScrollArea.Autosize type='scroll' mah={200}>
-            {filteredOptions.length === 0 ? (
-              <Combobox.Empty>Aucun résultat</Combobox.Empty>
-            ) : (
-              filteredOptions.map((item) => (
-                <Combobox.Option value={item} key={item}>
-                  {item}
-                </Combobox.Option>
-              ))
-            )}
-          </ScrollArea.Autosize>
-        </Combobox.Options>
-      </Combobox.Dropdown>
+      <ComboboxInput
+        label={label}
+        placeholder={placeholder}
+        selectedOption={selectedOption}
+        onChange={onChange}
+        store={combobox}
+        error={error}
+        isRequired={isRequired}
+      />
+      <ComboboxDropdown>
+        {filteredOptions.length === 0 ? (
+          <Combobox.Empty>Aucun résultat</Combobox.Empty>
+        ) : (
+          filteredOptions.map((item) => (
+            <Combobox.Option value={item} key={item}>
+              {item}
+            </Combobox.Option>
+          ))
+        )}
+      </ComboboxDropdown>
     </Combobox>
   );
 }
