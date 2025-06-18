@@ -1,6 +1,6 @@
 # Mantine Combobox
 
-### But
+## But
 
 Le but de ce répo est de tester le Combobox de [Mantine](https://mantine.dev/core/combobox/) dans plusieurs variantes pour une application potentielle aux autres projets d'ITN.
 
@@ -11,7 +11,7 @@ Combobox créés :
 - MultiSelect (Static)
 - MultiSelect (Api)
 
-### Améliorations potentielles :
+## Améliorations potentielles :
 
 Ajouter des props pour étoffer un peu plus les combobox.
 

@@ -11,7 +11,7 @@ export function Container({ children }: { children: ReactNode }) {
 
 export function Column({ children }: { children: ReactNode }) {
   return (
-    <Flex direction='column' justify='center' gap='xl'>
+    <Flex direction='column' justify='center' align='center' gap='xl'>
       {children}
     </Flex>
   );

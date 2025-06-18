@@ -50,7 +50,7 @@ export default function ApiMultiSelect({
       withinPortal={false}
       onOptionSubmit={(optionValue) => {
         if (optionValue === "$create" && createItemMethod) {
-          createItemMethod(optionValue);
+          createItemMethod(search);
         } else {
           onChange(
             selectedItems.includes(optionValue)

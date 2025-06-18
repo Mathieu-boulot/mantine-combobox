@@ -51,7 +51,8 @@ export default function ApiAutocomplete({
       withinPortal={false}
       onOptionSubmit={(optionValue) => {
         if (optionValue === "$create" && createItemMethod) {
-          createItemMethod(optionValue);
+          // const newItem = selectedItem
+          createItemMethod(selectedItem);
         } else {
           onChange(optionValue);
         }

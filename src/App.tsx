@@ -14,66 +14,64 @@ export default function App() {
   const [apiMultipleValue, setApiMultipleValue] = useState<string[]>([]);
   const [apiValue, setApiValue] = useState<string>("");
 
+  const options = [
+    "🍎 Apples",
+    "🍌 Bananas",
+    "🥦 Broccoli",
+    "🥕 Carrots",
+    "🍫 Chocolate",
+  ];
+
   return (
     <MantineProvider theme={theme}>
       <Container>
         <Row>
           <Column>
-            <Title>Autocomplete</Title>
-
+            <Title>🪄 Autocomplete</Title>
             <StaticAutocomplete
               isRequired
               label='Autocomplete with static option list'
               selectedItem={staticValue}
               onChange={(item: string) => setStaticValue(item)}
-              options={[
-                "🍎 Apples",
-                "🍌 Bananas",
-                "🥦 Broccoli",
-                "🥕 Carrots",
-                "🍫 Chocolate",
-              ]}
+              options={options}
             />
-
-            {/* To do : CreateNewItem */}
             <ApiAutocomplete
               isRequired
               label='Autocomplete with option list from api'
               url='https://jsonplaceholder.typicode.com/users'
-              onChange={(item: string) => setApiValue(item)}
               selectedItem={apiValue}
-              createItemMethod={(optionValue) => {
-                console.log("OPTIONVALUE :", optionValue);
-              }}
+              onChange={(item: string) => setApiValue(item)}
+              createItemMethod={(newItem) => setApiValue(newItem)}
             />
           </Column>
 
           <Column>
-            <Title>MultiSelect</Title>
-
+            <Title>🗃️ MultiSelect</Title>
             <StaticMultiSelect
               isRequired
               label='MultiSelect with static option list'
               selectedItems={staticMultipleValue}
               onChange={(item: string[]) => setStaticMultipleValue(item)}
-              options={[
-                "🍎 Apples",
-                "🍌 Bananas",
-                "🥦 Broccoli",
-                "🥕 Carrots",
-                "🍫 Chocolate",
-              ]}
+              options={options}
             />
-
-            {/* To do : CreateNewItem */}
             <ApiMultiSelect
               isRequired
               label='Autocomplete with option list from api'
-              url='https://jsonplaceholder.typicode.com/posts'
+              url='https://jsonplaceholder.typicode.com/users'
               selectedItems={apiMultipleValue}
               onChange={(item: string[]) => setApiMultipleValue(item)}
               normalizer={(item: any) => {
-                return item.title;
+                return item.email;
+              }}
+              createItemMethod={(search) => {
+                // New item is simply added to the selectedItem list
+                // For real implementations, send to the api to refresh
+                // the data option list with the new value
+                setApiMultipleValue(
+                  apiMultipleValue.includes(search)
+                    ? apiMultipleValue.filter((value) => value !== search)
+                    : [...apiMultipleValue, search]
+                );
               }}
             />
           </Column>
