@@ -1,4 +1,4 @@
-import { ComboboxProps } from "../../core/Combobox";
+import { ComboboxSimpleProps } from "../../core/Combobox";
 import {
   CloseButton,
   Combobox,
@@ -7,7 +7,7 @@ import {
   TextInput,
 } from "@mantine/core";
 
-type ComboboxInputProps = ComboboxProps & {
+type ComboboxInputProps = ComboboxSimpleProps & {
   store: ComboboxStore;
   loading?: boolean;
 };
@@ -15,7 +15,7 @@ type ComboboxInputProps = ComboboxProps & {
 export default function ComboboxInput({
   label,
   placeholder,
-  selectedOption,
+  selectedItem,
   error,
   isRequired,
   onChange,
@@ -28,7 +28,7 @@ export default function ComboboxInput({
         w='25rem'
         label={label}
         placeholder={placeholder}
-        value={selectedOption}
+        value={selectedItem}
         error={error}
         required={isRequired}
         onChange={(event) => {
@@ -43,7 +43,7 @@ export default function ComboboxInput({
           loading ? (
             <Loader size={18} />
           ) : (
-            selectedOption !== "" && (
+            selectedItem !== "" && (
               <CloseButton
                 size='sm'
                 onMouseDown={(event) => event.preventDefault()}

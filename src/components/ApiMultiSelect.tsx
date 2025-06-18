@@ -1,21 +1,22 @@
+import ComboboxMultipleOption from "./parts/ComboboxMultipleOption";
+import ComboboxMultipleInput from "./parts/ComboboxMultipleInput";
 import fetchApiOptions from "../core/utils/fetchApiOptions";
 import { Combobox, useCombobox } from "@mantine/core";
-import ComboboxInput from "./parts/ComboboxInput";
 import { useState } from "react";
 import {
   ApiComboboxData,
   ApiComboboxProps,
-  ComboboxSimpleProps,
+  ComboboxMultipleProps,
 } from "../core/Combobox";
 import {
-  ComboboxDropdown,
   ComboboxCreateOption,
+  ComboboxDropdown,
 } from "./parts/ComboboxDropdown";
 
-export default function ApiAutocomplete({
+export default function ApiMultiSelect({
   label,
   placeholder = label,
-  selectedItem,
+  selectedItems,
   error,
   isRequired,
   onChange,
@@ -24,7 +25,9 @@ export default function ApiAutocomplete({
   normalizer = (item: any) => {
     return item.name;
   },
-}: ComboboxSimpleProps & ApiComboboxProps) {
+}: ComboboxMultipleProps & ApiComboboxProps) {
+  const [search, setSearch] = useState("");
+
   const [data, setData] = useState<ApiComboboxData>({
     items: [],
     loading: false,
@@ -37,13 +40,9 @@ export default function ApiAutocomplete({
     },
   });
 
-  const shouldFilterOptions = !data.items.some((item) => item === selectedItem);
-
-  const filteredOptions = shouldFilterOptions
-    ? data.items.filter((item) =>
-        item.toLowerCase().includes(selectedItem.toLowerCase().trim())
-      )
-    : data.items;
+  const formatedOptions = data.items.filter((item) =>
+    item.toLowerCase().includes(search.trim().toLowerCase())
+  );
 
   return (
     <Combobox
@@ -53,36 +52,42 @@ export default function ApiAutocomplete({
         if (optionValue === "$create" && createItemMethod) {
           createItemMethod(optionValue);
         } else {
-          onChange(optionValue);
+          onChange(
+            selectedItems.includes(optionValue)
+              ? selectedItems.filter((value) => value !== optionValue)
+              : [...selectedItems, optionValue]
+          );
         }
-
-        combobox.closeDropdown();
+        setSearch("");
       }}
     >
-      <ComboboxInput
+      <ComboboxMultipleInput
         label={label}
         placeholder={placeholder}
-        selectedItem={selectedItem}
+        selectedItems={selectedItems}
         onChange={onChange}
         store={combobox}
-        loading={data.loading}
         error={error}
         isRequired={isRequired}
+        search={search}
+        setSearch={setSearch}
       />
       <ComboboxDropdown>
-        {filteredOptions.length === 0 ? (
+        {formatedOptions.length === 0 ? (
           <>
             {createItemMethod ? (
-              <ComboboxCreateOption value={selectedItem} />
+              <ComboboxCreateOption value={search} />
             ) : (
               <Combobox.Empty>Aucun résultat</Combobox.Empty>
             )}
           </>
         ) : (
-          filteredOptions.map((item) => (
-            <Combobox.Option value={item} key={item}>
-              {item}
-            </Combobox.Option>
+          formatedOptions.map((item) => (
+            <ComboboxMultipleOption
+              key={item}
+              item={item}
+              selectedItems={selectedItems}
+            />
           ))
         )}
       </ComboboxDropdown>

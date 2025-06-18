@@ -1,25 +1,23 @@
 import { ComboboxDropdown } from "./parts/ComboboxDropdown";
+import { ComboboxSimpleProps, StaticComboboxProps } from "../core/Combobox";
 import { Combobox, useCombobox } from "@mantine/core";
 import ComboboxInput from "./parts/ComboboxInput";
-import { ComboboxProps } from "../core/Combobox";
-
-type StaticAutocompleteProps = ComboboxProps & { options: string[] };
 
 export default function StaticAutocomplete({
   label,
   placeholder = label,
-  selectedOption,
+  selectedItem,
   error,
   isRequired,
   options,
   onChange,
-}: StaticAutocompleteProps) {
+}: ComboboxSimpleProps & StaticComboboxProps) {
   const combobox = useCombobox();
 
-  const shouldFilterOptions = !options.some((item) => item === selectedOption);
+  const shouldFilterOptions = !options.some((item) => item === selectedItem);
   const filteredOptions = shouldFilterOptions
     ? options.filter((item) =>
-        item.toLowerCase().includes(selectedOption.toLowerCase().trim())
+        item.toLowerCase().includes(selectedItem.toLowerCase().trim())
       )
     : options;
 
@@ -35,7 +33,7 @@ export default function StaticAutocomplete({
       <ComboboxInput
         label={label}
         placeholder={placeholder}
-        selectedOption={selectedOption}
+        selectedItem={selectedItem}
         onChange={onChange}
         store={combobox}
         error={error}
